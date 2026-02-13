@@ -1,7 +1,6 @@
 import logging
 import time
-from controllers.procmon import ProcmonController
-from controllers.registry import RegistryController
+from controllers.orchestrator import SystemAuditOrchestrator
 from helpers import run_as_admin
 
 
@@ -12,17 +11,16 @@ logging.basicConfig(
 )
 
 if __name__ == "__main__":
-    curr_time = time.gmtime()
-    time_str = f'{str(curr_time.tm_year)}-{str(curr_time.tm_mon)}-{str(curr_time.tm_mday)}_{str(curr_time.tm_hour)}-{str(curr_time.tm_min)}-{str(curr_time.tm_sec)}'
     run_as_admin()
+
+    TOOL_PATHS = {
+        'registry_exe': "C:\\tools\RegistryChangesView.exe",
+        'procmon_exe': "C:\\Tools\Procmon64.exe",
+        'tshark_exe': "C:\Program Files\Wireshark\tshark.exe",
+        'iface_id': 1  # Use tshark -D to find your interface ID
+    }
+
+    orchestrator = SystemAuditOrchestrator(base_output_dir="./Audit_Logs", paths=TOOL_PATHS)
     
-    # pm = ProcmonController(procmon_path="C:\\Users\\Admin\\Desktop\\Projects\\security\\ProcessMonitor\\Procmon.exe", 
-    #                        output_path="C:\\Users\\Admin\\Desktop\\Projects\\security\\logs",
-    #                        log_name=f'log_{time_str}')
-    # pm.capture(duration_sec=10, convert_to_csv=True)
-    
-    monitor = RegistryController("C:\\Users\\Admin\\Desktop\\Projects\\security\\registrychangesview-x64\\RegistryChangesView.exe")
-    # 1. Take initial state
-    monitor.capture_changes(duration_sec=10, 
-                            output_name=f'regdiff_{time_str}',
-                            output_dir_path="C:\\Users\\Admin\\Desktop\\Projects\\security\\reg")
+    # Run the audit for 30 seconds
+    orchestrator.run_audit(duration_sec=30, note="Software_Installer_Test")
