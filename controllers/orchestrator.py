@@ -2,6 +2,7 @@ import os
 import time
 import logging
 from datetime import datetime
+from typing import Callable
 
 from controllers.procmon import ProcmonController
 from controllers.registry import RegistryController
@@ -38,7 +39,7 @@ class SystemAuditOrchestrator:
         self.proc = ProcmonController(paths['procmon_exe'], self.output_path, "procmon_log")
         self.net = TsharkController(paths['tshark_exe'], self.output_path, interface_id=paths.get('iface_id', 1))
 
-    def run_audit(self, duration_sec: int, note: str | None = "activity_audit"):
+    def run_audit(self, activity_callback: Callable[[], None], note: str = ""):
         _logger.info(f"--- 🚀 Starting Unified Audit: {note} (ID: {self.run_id}) ---")
         
         try:
@@ -53,8 +54,9 @@ class SystemAuditOrchestrator:
             self.net.start_capture()
 
             # 3. Wait for the event/activity
-            _logger.info(f"Step 3/4: Monitoring system for {duration_sec} seconds...")
-            time.sleep(duration_sec)
+            _logger.info(f"Step 3/4: Monitoring system while doing activity...")
+            activity_callback()  # This is where the user-defined activity takes place (e.g., opening an app, running a command, etc.)
+            _logger.info("Activity completed. Waiting for monitors to capture remaining data...")
 
             # 4. Cleanup & Export
             _logger.info("Step 4/4: Stopping monitors and exporting data...")
