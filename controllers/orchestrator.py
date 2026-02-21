@@ -39,7 +39,10 @@ class SystemAuditOrchestrator:
         self.proc = ProcmonController(paths['procmon_exe'], self.output_path, "procmon_log")
         self.net = TsharkController(paths['tshark_exe'], self.output_path, interface_id=paths.get('iface_id', 1))
 
-    def run_audit(self, activity_callback: Callable[[], None], note: str = ""):
+    def run_audit(self, 
+                  activity_callback: Callable[[], None], 
+                  note: str = "",
+                  export_tshark_fields: list[str] | None = None):
         _logger.info(f"--- 🚀 Starting Unified Audit: {note} (ID: {self.run_id}) ---")
         
         try:
@@ -69,7 +72,9 @@ class SystemAuditOrchestrator:
             
             # Final Procmon Conversion
             self.proc.convert_to_csv()
-            self.net.export_to_csv()
+            
+            # Final TShark Conversion
+            self.net.export_to_csv(fields=export_tshark_fields)
 
             _logger.info(f"--- ✅ Audit Complete! Logs saved to: {self.output_path} ---")
 

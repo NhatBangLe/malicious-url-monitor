@@ -34,6 +34,8 @@ def main():
     
     parser.add_argument("--iface", type=int, default=1, 
                         help="TShark Interface ID (default: 1)")
+    parser.add_argument("--tshark-fields", nargs='*', default=None,
+                        help="Optional list of TShark fields to export (e.g., --tshark-fields frame.time ip.src ip.dst)")
 
     args = parser.parse_args()
 
@@ -66,7 +68,9 @@ def main():
             _logger.error(f"❌ Failed to launch browser: {e}")
 
     # 4. Execute
-    orchestrator.run_audit(browse_payload, note=f"edge_audit_{args.url.split('//')[-1][:15]}")
+    orchestrator.run_audit(browse_payload, 
+                           note=f"edge_audit_{args.url.split('//')[-1][:15]}",
+                           export_tshark_fields=args.tshark_fields)
 
 if __name__ == "__main__":
     main()

@@ -62,7 +62,7 @@ class TsharkController:
         else:
             _logger.warning("No active capture process found to stop.")
 
-    def export_to_csv(self, fields: list | None = None):
+    def export_to_csv(self, fields: list[str] | None = None):
         """
         Converts the .pcapng file to a CSV based on specific fields.
         Example fields: ['frame.number', 'ip.src', 'ip.dst', 'http.request.uri']
