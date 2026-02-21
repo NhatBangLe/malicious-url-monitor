@@ -68,7 +68,7 @@ class TsharkController:
         Example fields: ['frame.number', 'ip.src', 'ip.dst', 'http.request.uri']
         """
         if not fields:
-            fields = ['frame.number', '_ws.col.Time', 'ip.src', 'ip.dst', 'protocol', '_ws.col.Info']
+            fields = ['frame.number', '_ws.col.Time', 'ip.src', 'ip.dst', '_ws.col.Info']
 
         csv_output = path.join(self.output_dir, "network_summary.csv")
         _logger.info(f"📄 Exporting specific fields to {csv_output}...")
