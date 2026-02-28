@@ -15,6 +15,8 @@ def main():
     
     # --- Core Audit Arguments ---
     parser.add_argument("url", help="The URL to browse.")
+    parser.add_argument("--signal-file", type=str, default="AUDIT_COMPLETED",
+                        help="The filename to create upon completion. Default: AUDIT_COMPLETED")
     parser.add_argument("--duration", type=int, default=30, help="Audit duration in seconds (default: 30)")
     parser.add_argument("--output", default="./Audit_Logs", help="Base directory for logs")
 
@@ -51,7 +53,8 @@ def main():
     }
 
     # 3. Initialize Orchestrator with CLI-provided output dir
-    orchestrator = SystemAuditOrchestrator(base_output_dir=args.output, paths=TOOL_PATHS)
+    output_dir = args.output
+    orchestrator = SystemAuditOrchestrator(base_output_dir=output_dir, paths=TOOL_PATHS)
     
     def browse_payload():
         edge_path = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
@@ -71,6 +74,11 @@ def main():
     orchestrator.run_audit(browse_payload, 
                            note=f"edge_audit_{args.url.split('//')[-1][:15]}",
                            export_tshark_fields=args.tshark_fields)
+    
+    signal_path = os.path.join(output_dir, args.signal_file)
+    with open(signal_path, "w") as f:
+        f.write(f"Audit {args.url} completed.")
+    _logger.info(f"✅ Audit completed. Signal file created at: {signal_path}")
 
 if __name__ == "__main__":
     main()
