@@ -81,7 +81,21 @@ def main():
 
         try:
             # Launch in new window and InPrivate for a clean audit
-            subprocess.Popen([cmd_path, args.target_url, "--inprivate", "--new-window"])
+            subprocess.Popen(
+                [
+                    cmd_path,
+                    args.target_url,
+                    "--allow-running-insecure-content",
+                    "--new-window",
+                    "--disable-web-security",
+                    "--disable-site-isolation-trials",
+                    "--no-sandbox",
+                    "--no-first-run",
+                    "--disable-popup-blocking",
+                    "--disable-features=HttpsUpgrades,AutoupgradeInsecureRequests,HttpsOnlyMode,EdgeAutomaticHttps",
+                    f"--unsafely-treat-insecure-origin-as-secure={args.target_url}",
+                ]
+            )
             logging.info(f"⏳ Monitoring system activity for {args.duration}s...")
             time.sleep(args.duration)
         except Exception as e:
