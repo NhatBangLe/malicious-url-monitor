@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 import os
-import time
 import logging
 from datetime import datetime
-from typing import Callable
+from typing import Callable, List, Optional
 
 from controllers.procmon import ProcmonController
 from controllers.registry import RegistryController
@@ -54,7 +53,7 @@ class SystemAuditOrchestrator:
         self,
         activity_callback: Callable[[], None],
         note: str = "",
-        export_tshark_fields: list[str] | None = None,
+        export_tshark_fields: Optional[List[str]] = None,
     ):
         _logger.info(f"--- 🚀 Starting Unified Audit: {note} (ID: {self.run_id}) ---")
 

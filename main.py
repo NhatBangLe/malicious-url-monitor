@@ -3,6 +3,8 @@ import subprocess
 import os
 import json
 import time
+from typing import Optional
+from controllers.browser import BrowserController, BrowserType
 from controllers.orchestrator import (
     SystemAuditOrchestrator,
     SystemAuditOrchestratorOptions,
@@ -37,7 +39,7 @@ def main():
     # Check configuration file
     timeout = 300
     start_time = time.time()
-    args: ScriptArguments | None = None
+    args: Optional[ScriptArguments] = None
     while not args:
         args = get_config_from_file()
 
@@ -53,15 +55,15 @@ def main():
     paths = {
         "registry_exe": (
             args.regview_path
-            if args.regview_path
+            if args.regview_path and len(args.regview_path) != 0
             else "C:\\script\\RegistryChangesView.exe"
         ),
         "procmon_exe": (
-            args.procmon_path if args.procmon_path else "C:\\script\\Procmon.exe"
+            args.procmon_path if args.procmon_path and len(args.procmon_path) != 0 else "C:\\script\\Procmon.exe"
         ),
         "tshark_exe": (
             args.tshark_path
-            if args.tshark_path
+            if args.tshark_path and len(args.tshark_path) != 0
             else "C:\\Program Files\\Wireshark\\tshark.exe"
         ),
     }
@@ -73,40 +75,28 @@ def main():
         base_output_dir=args.output_path, options=options
     )
 
+    browser_type = BrowserType.CHROME
+    browser_controller = BrowserController(type=browser_type)
+
     def browse_payload():
-        edge_path = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
-        cmd_path = edge_path if os.path.exists(edge_path) else "msedge"
+        logging.info(f"🌐 Launching {browser_type.value} to: {args.target_url}")
+        result = browser_controller.open_url(args.target_url)
 
-        logging.info(f"🌐 Launching Microsoft Edge to: {args.target_url}")
-
-        try:
-            # Launch in new window and InPrivate for a clean audit
-            subprocess.Popen(
-                [
-                    cmd_path,
-                    args.target_url,
-                    "--allow-running-insecure-content",
-                    "--new-window",
-                    "--disable-web-security",
-                    "--disable-site-isolation-trials",
-                    "--no-sandbox",
-                    "--no-first-run",
-                    "--disable-popup-blocking",
-                    "--disable-features=HttpsUpgrades,AutoupgradeInsecureRequests,HttpsOnlyMode,EdgeAutomaticHttps",
-                    f"--unsafely-treat-insecure-origin-as-secure={args.target_url}",
-                ]
-            )
+        if result:
             logging.info(f"⏳ Monitoring system activity for {args.duration}s...")
             time.sleep(args.duration)
-        except Exception as e:
-            logging.error(f"❌ Failed to launch browser: {e}")
+        else:
+            logging.error(f"❌ Failed to launch browser for URL: {args.target_url}")
 
     # 4. Execute
     orchestrator.run_audit(
         browse_payload,
-        note=f"edge_audit_{args.target_url.split('//')[-1][:15]}",
+        note=f"{browser_type.value}_audit_{args.target_url.split('//')[-1][:15]}",
         export_tshark_fields=args.tshark_fields,
     )
+
+    # Close browser after audit completes
+    browser_controller.close()
 
     signal_path = os.path.join(args.output_path, args.signal_file)
     with open(signal_path, "w") as f:

@@ -1,6 +1,7 @@
 import subprocess
 import logging
 from os import path
+from typing import List, Optional
 
 
 class TsharkController:
@@ -14,7 +15,7 @@ class TsharkController:
         self.output_dir = path.abspath(output_path)
         self.interface_id = interface_id
         self.pcap_file = path.abspath(path.join(output_path, "capture.pcapng"))
-        self._process: subprocess.Popen | None = None
+        self._process: Optional[subprocess.Popen] = None
 
         if not path.exists(self.tshark):
             self._logger.error(f"❌ TShark executable not found at: {self.tshark}")
@@ -73,7 +74,7 @@ class TsharkController:
         else:
             self._logger.warning("No active capture process found to stop.")
 
-    def export_to_csv(self, fields: list[str] | None = None):
+    def export_to_csv(self, fields: Optional[List[str]] = None):
         """
         Converts the .pcapng file to a CSV based on specific fields.
         Example fields: ['frame.number', 'ip.src', 'ip.dst', 'http.request.uri']
