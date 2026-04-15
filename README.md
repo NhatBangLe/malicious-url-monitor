@@ -8,7 +8,6 @@ This tool is designed to analyze the system-level impact of visiting a suspiciou
 - Windows Registry changes
 - Process/file system activity
 - Network traffic
-- Python 3.8+ is required.
 
 ## System Requirements
 
@@ -16,7 +15,7 @@ This tool is designed to analyze the system-level impact of visiting a suspiciou
 - [Sysinternals Process Monitor (Procmon)](https://learn.microsoft.com/en-us/sysinternals/downloads/procmon) - `C:\script\Procmon.exe`
 - [NirSoft RegistryChangesView](https://www.nirsoft.net/utils/registry_changes_view.html) - `C:\script\RegistryChangesView.exe`
 - [Wireshark](https://www.wireshark.org/) (with TShark) - `C:\Program Files\Wireshark\tshark.exe`
-- Python 3.8+
+- Python 3.8+ is required
 
 ## Configuration
 
